@@ -1,0 +1,131 @@
+FeatureScript 1511;
+import(path : "onshape/std/geometry.fs", version : "1511.0");
+import(path : "onshape/std/common.fs", version : "1511.0");
+const mm = millimeter;
+const VERTEX = EntityType.VERTEX;
+const EDGE = EntityType.EDGE;
+const FACE = EntityType.FACE;
+const BODY = EntityType.BODY;
+function v(x, y){return vector(x, y);}
+function OD(order){return orderDisambiguation(order);}
+function OSD(set){return originalSetDisambiguation(set);}
+function TD(topology){return topologyDisambiguation(topology);}
+function TDD(query){return trueDependencyDisambiguation(query);}
+function sQuery(a, b, c) {return sketchEntityQuery(a, b, c);}
+
+annotation { "Feature Type Name" : "Feature", "Feature Type Description" : "" }
+export const myFeature = defineFeature(function(context is Context, id is Id, definition is map)
+    precondition{}
+    {
+        {
+            var Q0;
+            Q0=qCreatedBy(makeId("Top.planeOp"),FACE);
+            var sketch = newSketch(context, id + "F0", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E0.rect.bottom", {"start": v(7.5, 75) * mm, "end": v(-7.5, 75) * mm});
+            skLineSegment(sketch, "E0.rect.left", {"start": v(7.5, 75) * mm, "end": v(7.5, -75) * mm});
+            skLineSegment(sketch, "E0.rect.right", {"start": v(-7.5, 75) * mm, "end": v(-7.5, 25) * mm});
+            skPoint(sketch, "E0.rect.middle", {"position": v(0, 0) * mm});
+            skLineSegment(sketch, "E1.bottom", {"start": v(-7.5, -75) * mm, "end": v(-62.5, -75) * mm});
+            skLineSegment(sketch, "E1.top", {"start": v(7.5, -90) * mm, "end": v(-62.5, -90) * mm});
+            skLineSegment(sketch, "E1.left", {"start": v(7.5, -75) * mm, "end": v(7.5, -90) * mm});
+            skLineSegment(sketch, "E1.right", {"start": v(-62.5, -75) * mm, "end": v(-62.5, -90) * mm});
+            skLineSegment(sketch, "E2.bottom", {"start": v(-7.5, -52.5) * mm, "end": v(-62.5, -52.5) * mm});
+            skLineSegment(sketch, "E2.top", {"start": v(-7.5, -45.5) * mm, "end": v(-62.5, -45.5) * mm});
+            skLineSegment(sketch, "E2.right", {"start": v(-62.5, -52.5) * mm, "end": v(-62.5, -45.5) * mm});
+            skLineSegment(sketch, "E3.bottom", {"start": v(-7.5, 18) * mm, "end": v(-17, 18) * mm});
+            skLineSegment(sketch, "E3.top", {"start": v(-7.5, 25) * mm, "end": v(-10, 25) * mm});
+            skLineSegment(sketch, "E3.right", {"start": v(-17, 18) * mm, "end": v(-17, 25) * mm});
+            skLineSegment(sketch, "E4.top", {"start": v(-17, 75) * mm, "end": v(-10, 75) * mm});
+            skLineSegment(sketch, "E4.left", {"start": v(-17, 25) * mm, "end": v(-17, 75) * mm});
+            skLineSegment(sketch, "E4.right", {"start": v(-10, 25) * mm, "end": v(-10, 75) * mm});
+            skLineSegment(sketch, "E5", {"start": v(-17, 75) * mm, "end": v(-58.31, -45.5) * mm, "construction": true});
+            skLineSegment(sketch, "E6", {"start": v(-58.31, -45.5) * mm, "end": v(-50.91, -45.5) * mm});
+            skLineSegment(sketch, "E7", {"start": v(-50.91, -45.5) * mm, "end": v(-17, 53.42) * mm, "construction": true});
+            skLineSegment(sketch, "E8", {"start": v(-17, 53.42) * mm, "end": v(-14, 62.17) * mm, "construction": true});
+            skLineSegment(sketch, "E9", {"start": v(-14, 62.17) * mm, "end": v(-14, 72.17) * mm, "construction": true});
+            skLineSegment(sketch, "E10", {"start": v(-14, 72.17) * mm, "end": v(-17, 63.42) * mm, "construction": true});
+            skLineSegment(sketch, "E11", {"start": v(-50.91, -45.5) * mm, "end": v(-52.11, -49) * mm});
+            skLineSegment(sketch, "E12", {"start": v(-52.11, -49) * mm, "end": v(-55.81, -49) * mm});
+            skLineSegment(sketch, "E13", {"start": v(-55.81, -49) * mm, "end": v(-54.61, -45.5) * mm});
+            skLineSegment(sketch, "E14", {"start": v(-54.61, -45.5) * mm, "end": v(-50.91, -45.5) * mm});
+            skPoint(sketch, "E15.orphan", {"position": v(7.5, -75) * mm});
+            skLineSegment(sketch, "E16.trimOffspring", {"start": v(-7.5, -52.5) * mm, "end": v(-7.5, -75) * mm});
+            skLineSegment(sketch, "E17.trimOffspring", {"start": v(-7.5, 18) * mm, "end": v(-7.5, -45.5) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {var subQ3=sQuery(id+"F0.wireOp",EDGE,"E11");var subQ4=makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":subQ3});Q0=qUnion([makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E0.rect.bottom")}),1.0]])]}),makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ4,-1.0]])]})]);}
+            extrude(context, id + "F1", {"entities" : qUnion([Q0]), "depth" : 20 * mm});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E0.rect.bottom")}),1.0]])]});
+            cPlane(context, id + "F2", {"entities" : qUnion([Q0]), "cplaneType" : CPlaneType.OFFSET, "offset" : 4 * mm, "width" : 150 * mm, "height" : 150 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCreatedBy(id+"F2.planeOp",FACE);
+            var sketch = newSketch(context, id + "F3", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E18", {"start": v(-14, 72.17) * mm, "end": v(-17, 63.42) * mm});
+            skLineSegment(sketch, "E19", {"start": v(-17, 63.42) * mm, "end": v(-17, 53.42) * mm});
+            skLineSegment(sketch, "E20", {"start": v(-17, 53.42) * mm, "end": v(-14, 62.17) * mm});
+            skLineSegment(sketch, "E21", {"start": v(-14, 62.17) * mm, "end": v(-14, 72.17) * mm});
+            skLineSegment(sketch, "E22", {"start": v(-55.81, -49) * mm, "end": v(-54.61, -45.5) * mm});
+            skLineSegment(sketch, "E23", {"start": v(-54.61, -45.5) * mm, "end": v(-50.91, -45.5) * mm});
+            skLineSegment(sketch, "E24", {"start": v(-50.91, -45.5) * mm, "end": v(-52.11, -49) * mm});
+            skLineSegment(sketch, "E25", {"start": v(-52.11, -49) * mm, "end": v(-55.81, -49) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {Q0=qUnion([makeQuery(id+"F3.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F3.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F3.wireOp",EDGE,"E18")}),1.0]])]}),makeQuery(id+"F3.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F3.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F3.wireOp",EDGE,"E22")}),-1.0]])]})]);}
+            extrude(context, id + "F4", {"entities" : qUnion([Q0]), "operationType" : NewBodyOperationType.REMOVE, "depth" : 12 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCreatedBy(id+"F2.planeOp",FACE);
+            var sketch = newSketch(context, id + "F5", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E26", {"start": v(-14, 72.17) * mm, "end": v(-17, 63.42) * mm});
+            skLineSegment(sketch, "E27", {"start": v(-17, 63.42) * mm, "end": v(-17, 53.42) * mm});
+            skLineSegment(sketch, "E28", {"start": v(-17, 53.42) * mm, "end": v(-14, 62.17) * mm});
+            skLineSegment(sketch, "E29", {"start": v(-14, 62.17) * mm, "end": v(-14, 72.17) * mm});
+            skLineSegment(sketch, "E30", {"start": v(-54.61, -45.5) * mm, "end": v(-50.91, -45.5) * mm});
+            skLineSegment(sketch, "E31", {"start": v(-50.91, -45.5) * mm, "end": v(-52.11, -49) * mm});
+            skLineSegment(sketch, "E32", {"start": v(-52.11, -49) * mm, "end": v(-55.81, -49) * mm});
+            skLineSegment(sketch, "E33", {"start": v(-55.81, -49) * mm, "end": v(-54.61, -45.5) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {Q0=qUnion([makeQuery(id+"F5.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F5.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F5.wireOp",EDGE,"E26")}),1.0]])]}),makeQuery(id+"F5.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F5.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F5.wireOp",EDGE,"E30")}),-1.0]])]})]);}
+            extrude(context, id + "F6", {"entities" : qUnion([Q0]), "depth" : 12 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCreatedBy(makeId("Top.planeOp"),FACE);
+            var sketch = newSketch(context, id + "F7", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E34", {"start": v(-17, 75) * mm, "end": v(-58.31, -45.5) * mm});
+            skLineSegment(sketch, "E35", {"start": v(-58.31, -45.5) * mm, "end": v(-50.91, -45.5) * mm});
+            skLineSegment(sketch, "E36", {"start": v(-50.91, -45.5) * mm, "end": v(-17, 53.42) * mm});
+            skLineSegment(sketch, "E37", {"start": v(-17, 53.42) * mm, "end": v(-17, 75) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F7.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F7.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F7.wireOp",EDGE,"E34")}),1.0]])]});
+            extrude(context, id + "F8", {"entities" : qUnion([Q0]), "depth" : 20 * mm});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F6.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F5.wireOp",EDGE,"E26"),sQuery(id+"F5.wireOp",EDGE,"E27"),sQuery(id+"F5.wireOp",EDGE,"E28"),sQuery(id+"F5.wireOp",EDGE,"E29")])]});
+            var Q1;
+            Q1=qCreatedBy(makeId("Right.planeOp"),FACE);
+            mirror(context, id + "F9", {"entities" : qUnion([Q0]), "mirrorPlane" : qUnion([Q1])});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F6.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F5.wireOp",EDGE,"E26"),sQuery(id+"F5.wireOp",EDGE,"E27"),sQuery(id+"F5.wireOp",EDGE,"E28"),sQuery(id+"F5.wireOp",EDGE,"E29")])]});
+            deleteBodies(context, id + "F10", {"entities" : qUnion([Q0])});
+        }
+    });

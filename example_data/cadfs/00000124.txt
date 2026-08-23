@@ -1,0 +1,193 @@
+FeatureScript 1511;
+import(path : "onshape/std/geometry.fs", version : "1511.0");
+import(path : "onshape/std/common.fs", version : "1511.0");
+const mm = millimeter;
+const VERTEX = EntityType.VERTEX;
+const EDGE = EntityType.EDGE;
+const FACE = EntityType.FACE;
+const BODY = EntityType.BODY;
+function v(x, y){return vector(x, y);}
+function OD(order){return orderDisambiguation(order);}
+function OSD(set){return originalSetDisambiguation(set);}
+function TD(topology){return topologyDisambiguation(topology);}
+function TDD(query){return trueDependencyDisambiguation(query);}
+function sQuery(a, b, c) {return sketchEntityQuery(a, b, c);}
+
+annotation { "Feature Type Name" : "Feature", "Feature Type Description" : "" }
+export const myFeature = defineFeature(function(context is Context, id is Id, definition is map)
+    precondition{}
+    {
+        {
+            var Q0;
+            Q0 = qCreatedBy(makeId("Front.planeOp"), FACE);
+            var sketch = newSketch(context, id + "F0", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E0", {"start": v(-83.1, 0) * mm, "end": v(0, 0) * mm, "construction": true});
+            skLineSegment(sketch, "E1.bottom", {"start": v(25, 39.34) * mm, "end": v(0, 30.24) * mm});
+            skLineSegment(sketch, "E1.top", {"start": v(25, 65.24) * mm, "end": v(0, 65.24) * mm});
+            skLineSegment(sketch, "E1.left", {"start": v(25, 39.34) * mm, "end": v(25, 65.24) * mm});
+            skLineSegment(sketch, "E1.right", {"start": v(0, 30.24) * mm, "end": v(0, 65.24) * mm});
+            skLineSegment(sketch, "E2.0", {"start": v(68.9, 50) * mm, "end": v(-27.26, 15) * mm});
+            skLineSegment(sketch, "E3", {"start": v(68.9, 50) * mm, "end": v(68.9, 15) * mm});
+            skLineSegment(sketch, "E4", {"start": v(68.9, 15) * mm, "end": v(-27.26, 15) * mm});
+            skPoint(sketch, "E5", {"position": v(-68.47, 0) * mm});
+            skLineSegment(sketch, "E6", {"start": v(0, 0) * mm, "end": v(-68.47, 0) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E2.0")}),1.0]])]});
+            var Q1;
+            Q1=sQuery(id+"F0.wireOp",EDGE,"E0");
+            revolve(context, id + "F1", {"entities" : qUnion([Q0]), "axis" : qUnion([Q1]), "revolveType" : RevolveType.FULL});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F1.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3")])]});
+            var sketch = newSketch(context, id + "F2", { "sketchPlane" : qUnion([Q0])});
+            skCircle(sketch, "E7", {"center": v(-49.99, 1.1) * mm, "radius": 6.26 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {var subQ0=makeQuery(id+"F1.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E2.0"),sQuery(id+"F0.wireOp",EDGE,"E3")])]});var subQ1=sQuery(id+"F2.wireOp",EDGE,"E7");var subQ3=makeQuery(id+"F2.imprint","INTERSECT",VERTEX,{"disambiguationData":[OD(0.0)],"derivedFrom":[subQ0,subQ1]});Q0=qUnion([makeQuery(id+"F2.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F2.imprint","IMPRINT",EDGE,{"disambiguationData":[TD([[subQ3,1.0]])],"derivedFrom":subQ1}),1.0]])]}),makeQuery(id+"F2.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F2.imprint","IMPRINT",EDGE,{"disambiguationData":[TD([[subQ3,-1.0]])],"derivedFrom":subQ1}),1.0]])]})]);}
+            extrude(context, id + "F3", {"entities" : qUnion([Q0]), "oppositeDirection" : true, "depth" : 131.33 * mm});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]});
+            var Q1;
+            Q1=makeQuery(id+"F1.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E4")])]});
+            circularPattern(context, id + "F4", {"entities" : qUnion([Q0]), "axis" : qUnion([Q1]), "angle" : 360 * degree, "instanceCount" : 10, "equalSpace" : true});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E1.bottom")}),-1.0]])]});
+            var Q1;
+            Q1=sQuery(id+"F0.wireOp",EDGE,"E0");
+            revolve(context, id + "F5", {"entities" : qUnion([Q0]), "axis" : qUnion([Q1]), "revolveType" : RevolveType.FULL});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"4"});
+            var Q1;
+            Q1=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"3"});
+            var Q2;
+            Q2=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"2"});
+            var Q3;
+            Q3=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"1"});
+            var Q4;
+            Q4=makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]});
+            var Q5;
+            Q5=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"9"});
+            var Q6;
+            Q6=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"8"});
+            var Q7;
+            Q7=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"7"});
+            var Q8;
+            Q8=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"6"});
+            var Q9;
+            Q9=makeQuery(id+"F4.opPattern","COPY",BODY,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"5"});
+            var Q10;
+            Q10=makeQuery(id+"F1.opRevolve","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E2.0"),sQuery(id+"F0.wireOp",EDGE,"E3"),sQuery(id+"F0.wireOp",EDGE,"E4")])]});
+            var Q11;
+            Q11=makeQuery(id+"F5.opRevolve","SWEPT_BODY",BODY,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.bottom"),sQuery(id+"F0.wireOp",EDGE,"E1.top"),sQuery(id+"F0.wireOp",EDGE,"E1.left"),sQuery(id+"F0.wireOp",EDGE,"E1.right")])]});
+            booleanBodies(context, id + "F6", {"operationType" : BooleanOperationType.SUBTRACTION, "tools" : qUnion([Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9]), "targets" : qUnion([Q10, Q11])});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F1.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3")])]});
+            extrude(context, id + "F7", {"entities" : qUnion([Q0]), "operationType" : NewBodyOperationType.ADD, "depth" : 25 * mm});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]});
+            var sketch = newSketch(context, id + "F8", { "sketchPlane" : qUnion([Q0])});
+            skLineSegment(sketch, "E8.bottom", {"start": v(-102.18, 110.86) * mm, "end": v(0, 110.86) * mm});
+            skLineSegment(sketch, "E8.top", {"start": v(-102.18, -86.82) * mm, "end": v(0, -86.82) * mm});
+            skLineSegment(sketch, "E8.left", {"start": v(-102.18, 110.86) * mm, "end": v(-102.18, -86.82) * mm});
+            skLineSegment(sketch, "E8.right", {"start": v(0, 110.86) * mm, "end": v(0, -86.82) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {var subQ0=makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]});var subQ1=sQuery(id+"F0.wireOp",EDGE,"E1.left");var subQ2=makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ1])]});var subQ3=makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[subQ0,subQ2]})});var subQ4=makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":subQ0,"instanceName":"1"}),subQ2]})});var subQ5=makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":subQ0,"instanceName":"2"}),subQ2]})});var subQ6=makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":subQ0,"instanceName":"8"}),subQ2]})});var subQ7=makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":subQ0,"instanceName":"9"}),subQ2]})});var subQ9=sQuery(id+"F8.wireOp",EDGE,"E8.right");var subQ14=sQuery(id+"F8.wireOp",EDGE,"E8.bottom");var subQ15=makeQuery(id+"F5.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.bottom"),subQ1])]});var subQ17=makeQuery(id+"F8.imprint","INTERSECT",VERTEX,{"disambiguationData":[OD(0.0)],"derivedFrom":[subQ15,subQ9]});Q0=qUnion([makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ3,-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ4,-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ5,-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ6,-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ7,-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"derivedFrom":subQ14}),-1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ3,1.0]])]}),makeQuery(id+"F8.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F8.imprint","IMPRINT",EDGE,{"disambiguationData":[TD([[subQ17,-1.0]])],"derivedFrom":subQ9}),-1.0]])]})]);}
+            extrude(context, id + "F9", {"entities" : qUnion([Q0]), "operationType" : NewBodyOperationType.REMOVE, "oppositeDirection" : true, "depth" : .1 * mm});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F5.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.bottom"),sQuery(id+"F0.wireOp",EDGE,"E1.left")])]});
+            var Q1;
+            Q1=makeQuery(id+"F5.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.top"),sQuery(id+"F0.wireOp",EDGE,"E1.left")])]});
+            var Q2;
+            Q2=makeQuery(id+"F5.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.top"),sQuery(id+"F0.wireOp",EDGE,"E1.right")])]});
+            var Q3;
+            Q3=makeQuery(id+"F5.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.bottom"),sQuery(id+"F0.wireOp",EDGE,"E1.right")])]});
+            fillet(context, id + "F10", {"entities" : qUnion([Q0, Q1, Q2, Q3]), "radius" : 2 * mm, "tangentPropagation" : true, "allowEdgeOverflow" : false});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.right")])]});
+            var Q1;
+            Q1=makeQuery(id+"F1.opRevolve","SWEPT_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E2.0"),sQuery(id+"F0.wireOp",EDGE,"E4")])]});
+            var Q2;
+            Q2=makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"3"}),makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]})]});
+            var Q3;
+            Q3=makeQuery(id+"F9.boolean.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(1.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"2"})}),makeQuery(id+"F9.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F8.wireOp",EDGE,"E8.bottom"),sQuery(id+"F8.wireOp",EDGE,"E8.top"),sQuery(id+"F8.wireOp",EDGE,"E8.left"),sQuery(id+"F8.wireOp",EDGE,"E8.right")])],"isStart":false})]});
+            var Q4;
+            Q4=makeQuery(id+"F9.boolean.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(1.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"1"})}),makeQuery(id+"F9.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F8.wireOp",EDGE,"E8.bottom"),sQuery(id+"F8.wireOp",EDGE,"E8.top"),sQuery(id+"F8.wireOp",EDGE,"E8.left"),sQuery(id+"F8.wireOp",EDGE,"E8.right")])],"isStart":false})]});
+            var Q5;
+            Q5=makeQuery(id+"F9.boolean.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(1.0)],"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]})}),makeQuery(id+"F9.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F8.wireOp",EDGE,"E8.bottom"),sQuery(id+"F8.wireOp",EDGE,"E8.top"),sQuery(id+"F8.wireOp",EDGE,"E8.left"),sQuery(id+"F8.wireOp",EDGE,"E8.right")])],"isStart":false})]});
+            var Q6;
+            Q6=makeQuery(id+"F9.boolean.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(1.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"9"})}),makeQuery(id+"F9.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F8.wireOp",EDGE,"E8.bottom"),sQuery(id+"F8.wireOp",EDGE,"E8.top"),sQuery(id+"F8.wireOp",EDGE,"E8.left"),sQuery(id+"F8.wireOp",EDGE,"E8.right")])],"isStart":false})]});
+            var Q7;
+            Q7=makeQuery(id+"F9.boolean.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(1.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"8"})}),makeQuery(id+"F9.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F8.wireOp",EDGE,"E8.bottom"),sQuery(id+"F8.wireOp",EDGE,"E8.top"),sQuery(id+"F8.wireOp",EDGE,"E8.left"),sQuery(id+"F8.wireOp",EDGE,"E8.right")])],"isStart":false})]});
+            var Q8;
+            Q8=makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"7"}),makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]})]});
+            var Q9;
+            Q9=makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"6"}),makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]})]});
+            var Q10;
+            Q10=makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"5"}),makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]})]});
+            var Q11;
+            Q11=makeQuery(id+"F6.opBoolean","INTERSECT",EDGE,{"derivedFrom":[makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F2.wireOp",EDGE,"E7")])]}),"instanceName":"4"}),makeQuery(id+"F5.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E1.left")])]})]});
+            chamfer(context, id + "F11", {"entities" : qUnion([Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11]), "width" : 2 * mm, "tangentPropagation" : true});
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F7.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3")])],"isStart":false});
+            var sketch = newSketch(context, id + "F12", { "sketchPlane" : qUnion([Q0])});
+            skCircle(sketch, "E9", {"center": v(0, 0) * mm, "radius": 28.42 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            {var subQ0=makeQuery(id+"F12.imprint","IMPRINT",EDGE,{"derivedFrom":makeQuery(id+"F7.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3"),sQuery(id+"F0.wireOp",EDGE,"E4")])],"isStart":false})});Q0=qUnion([makeQuery(id+"F12.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[subQ0,-1.0]])]}),makeQuery(id+"F12.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F12.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F12.wireOp",EDGE,"E9")}),1.0]])]})]);}
+            extrude(context, id + "F13", {"entities" : qUnion([Q0]), "operationType" : NewBodyOperationType.REMOVE, "oppositeDirection" : true, "depth" : 37.2 * mm});
+        }
+        {
+            var Q0;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q0=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"4"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"4"})})])]})]});}
+            var Q1;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q1=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"3"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"3"})})])]})]});}
+            var Q2;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q2=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"5"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"5"})})])]})]});}
+            var Q3;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q3=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"6"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"6"})})])]})]});}
+            var Q4;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q4=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"7"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"7"})})])]})]});}
+            var Q5;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q5=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"8"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"8"})})])]})]});}
+            var Q6;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q6=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"9"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"9"})})])]})]});}
+            var Q7;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q7=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true})})])]})]});}
+            var Q8;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q8=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"1"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"1"})})])]})]});}
+            var Q9;
+            Q9=makeQuery(id+"F1.opRevolve","SWEPT_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3")])]});
+            var Q10;
+            {var subQ0=sQuery(id+"F2.wireOp",EDGE,"E7");Q10=makeQuery(id+"F7.boolean.opBoolean","MERGE",FACE,{"derivedFrom":[makeQuery(id+"F6.opBoolean","COPY",FACE,{"disambiguationData":[OD(0.0)],"derivedFrom":makeQuery(id+"F4.opPattern","COPY",FACE,{"derivedFrom":makeQuery(id+"F3.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0])]}),"instanceName":"2"})}),makeQuery(id+"F7.opExtrude","SWEPT_FACE",FACE,{"disambiguationData":[OSD([subQ0]),TDD([makeQuery(id+"F6.opBoolean","COPY",EDGE,{"derivedFrom":makeQuery(id+"F4.opPattern","COPY",EDGE,{"derivedFrom":makeQuery(id+"F3.opExtrude","CAP_EDGE",EDGE,{"disambiguationData":[OSD([subQ0])],"isStart":true}),"instanceName":"2"})})])]})]});}
+            var Q11;
+            Q11=makeQuery(id+"F7.opExtrude","CAP_FACE",FACE,{"disambiguationData":[OSD([sQuery(id+"F0.wireOp",EDGE,"E3")])],"isStart":false});
+            fillet(context, id + "F14", {"entities" : qUnion([Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11]), "radius" : 1 * mm, "tangentPropagation" : true, "allowEdgeOverflow" : false});
+        }
+    });

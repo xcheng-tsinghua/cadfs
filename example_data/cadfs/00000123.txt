@@ -1,0 +1,35 @@
+FeatureScript 1511;
+import(path : "onshape/std/geometry.fs", version : "1511.0");
+import(path : "onshape/std/common.fs", version : "1511.0");
+const mm = millimeter;
+const VERTEX = EntityType.VERTEX;
+const EDGE = EntityType.EDGE;
+const FACE = EntityType.FACE;
+const BODY = EntityType.BODY;
+function v(x, y){return vector(x, y);}
+function OD(order){return orderDisambiguation(order);}
+function OSD(set){return originalSetDisambiguation(set);}
+function TD(topology){return topologyDisambiguation(topology);}
+function TDD(query){return trueDependencyDisambiguation(query);}
+function sQuery(a, b, c) {return sketchEntityQuery(a, b, c);}
+
+annotation { "Feature Type Name" : "Feature", "Feature Type Description" : "" }
+export const myFeature = defineFeature(function(context is Context, id is Id, definition is map)
+    precondition{}
+    {
+        {
+            var Q0;
+            Q0=qCreatedBy(makeId("Front.planeOp"),FACE);
+            var sketch = newSketch(context, id + "F0", { "sketchPlane" : qUnion([Q0])});
+            skCircle(sketch, "E0", {"center": v(0, 0) * mm, "radius": 41.15 * mm});
+            skCircle(sketch, "E1", {"center": v(0, 0) * mm, "radius": 21.97 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0=makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E0")}),1.0]])]});
+            var Q1;
+            Q1=makeQuery(id+"F0.imprint","IMPRINT",FACE,{"disambiguationData":[TD([[makeQuery(id+"F0.imprint","IMPRINT",EDGE,{"derivedFrom":sQuery(id+"F0.wireOp",EDGE,"E1")}),1.0]])]});
+            extrude(context, id + "F1", {"entities" : qUnion([Q0, Q1]), "depth" : 25.4 * mm});
+        }
+    });
