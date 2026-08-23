@@ -3,6 +3,7 @@
 Examples:
     python main.py link-to-cadfs
     python main.py link-to-cadfs --url "https://cad.onshape.com/documents/..."
+    python main.py batch-links-to-cadfs
     python main.py batch-step
     python main.py batch-step --overwrite
     python main.py end-to-end
@@ -12,12 +13,13 @@ import argparse
 import json
 from pathlib import Path
 
-from src import batch_download_steps, onshape_link_to_cadfs
+from src import batch_download_steps, batch_onshape_links_to_cadfs, onshape_link_to_cadfs
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 CREDENTIALS = PROJECT_ROOT / 'creds' / 'creds.json'
 URLS_FILE = PROJECT_ROOT / 'example_data' / 'onshape_part_url.json'
 EXAMPLE_CADFS_DIR = PROJECT_ROOT / 'example_data' / 'cadfs'
+GENERATED_CADFS_DIR = PROJECT_ROOT / 'example_data' / 'batch_generated_cadfs'
 
 
 def load_example_urls() -> list[str]:
@@ -41,13 +43,9 @@ def example_link_to_cadfs(onshape_url: str | None = None) -> str:
 
 
 def example_batch_download_steps(*, overwrite: bool = False):
-    """Example 2: load multiple CADFS text files and download their STEP models."""
-    cadfs_codes = {path.stem: path.read_text(encoding='utf-8') for path in sorted(EXAMPLE_CADFS_DIR.glob('*.txt'))}
-    if not cadfs_codes:
-        raise FileNotFoundError(f'No CADFS .txt files found in {EXAMPLE_CADFS_DIR}')
-
+    """Example 2: convert every CADFS text file in a directory to STEP."""
     results = batch_download_steps(
-        cadfs_codes,
+        EXAMPLE_CADFS_DIR,
         output_dir=PROJECT_ROOT / 'example_data' / 'step_output',
         credentials=CREDENTIALS,
         workers=1,
@@ -57,16 +55,30 @@ def example_batch_download_steps(*, overwrite: bool = False):
     return results
 
 
-def example_end_to_end(*, overwrite: bool = False):
-    """Example 3: convert all example links and immediately download their STEP files."""
-    cadfs_codes = {}
-    for index, url in enumerate(load_example_urls()):
-        # onshape_link_to_cadfs prints the request count for this URL.
-        cadfs_codes[f'onshape_part_{index:02d}'] = onshape_link_to_cadfs(url, credentials=CREDENTIALS)
+def example_batch_onshape_links_to_cadfs(*, overwrite: bool = False):
+    """Example 3: convert every Onshape link in a JSON file to a CADFS text file."""
+    results = batch_onshape_links_to_cadfs(
+        URLS_FILE,
+        output_dir=GENERATED_CADFS_DIR,
+        credentials=CREDENTIALS,
+        overwrite=overwrite,
+    )
+    print_results(results)
+    return results
 
-    # batch_download_steps prints the total request count for the entire batch.
+
+def example_end_to_end(*, overwrite: bool = False):
+    """Example 4: JSON links -> CADFS directory -> STEP directory."""
+    conversion_results = batch_onshape_links_to_cadfs(
+        URLS_FILE,
+        output_dir=GENERATED_CADFS_DIR,
+        credentials=CREDENTIALS,
+        overwrite=overwrite,
+    )
+    print_results(conversion_results)
+
     results = batch_download_steps(
-        cadfs_codes,
+        GENERATED_CADFS_DIR,
         output_dir=PROJECT_ROOT / 'example_data' / 'end_to_end_step_output',
         credentials=CREDENTIALS,
         workers=1,
@@ -91,7 +103,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         'example',
-        choices=('link-to-cadfs', 'batch-step', 'end-to-end'),
+        choices=('link-to-cadfs', 'batch-links-to-cadfs', 'batch-step', 'end-to-end'),
         help='which example to run',
     )
     parser.add_argument(
@@ -110,6 +122,8 @@ def main() -> None:
     args = parse_args()
     if args.example == 'link-to-cadfs':
         example_link_to_cadfs(args.url)
+    elif args.example == 'batch-links-to-cadfs':
+        example_batch_onshape_links_to_cadfs(overwrite=args.overwrite)
     elif args.example == 'batch-step':
         example_batch_download_steps(overwrite=args.overwrite)
     else:

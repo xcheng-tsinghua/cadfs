@@ -370,10 +370,14 @@ or creates `data/inference/CADFS_text_validation/{model_id:08}_c.txt` in case of
 
 ### Python API
 
-Two high-level functions cover conversion from an Onshape Part Studio and batch STEP export:
+Three high-level functions cover single/batch Onshape conversion and batch STEP export:
 
 ```python
-from src import batch_download_steps, onshape_link_to_cadfs
+from src import (
+    batch_download_steps,
+    batch_onshape_links_to_cadfs,
+    onshape_link_to_cadfs,
+)
 
 # 1. Onshape Part Studio URL -> cleaned CADFS FeatureScript string
 code = onshape_link_to_cadfs(
@@ -381,9 +385,16 @@ code = onshape_link_to_cadfs(
     credentials='creds/onshape_accounts.json',
 )
 
-# 2. Multiple CADFS strings -> STEP files
+# 2. JSON list of Onshape links -> one CADFS .txt file per link
+conversion_results = batch_onshape_links_to_cadfs(
+    'example_data/onshape_part_url.json',
+    output_dir='example_data/generated_cadfs',
+    credentials='creds/onshape_accounts.json',
+)
+
+# 3. Directory containing CADFS .txt files -> STEP files
 results = batch_download_steps(
-    {'bracket': code, 'other_part': another_code},
+    'example_data/generated_cadfs',
     output_dir='data/step_output',
     credentials='creds/onshape_accounts.json',
     workers=2,
@@ -396,10 +407,11 @@ Each function prints its total number of actual Onshape HTTP requests when it
 finishes. The count includes redirects, export-status polling, cleanup calls,
 and requests made before an exception; a no-op batch prints zero.
 
-`cadfs_codes` may also be a list; outputs are then named `00000000.step`,
-`00000001.step`, and so on. Pass `names=[...]` to choose names for list input.
-Compilation and rendering failures are isolated per model and returned as
-`compile_error` or `render_error`; the batch continues.
+The URL JSON may be a list of strings or a list of objects with a `url` key.
+Batch conversion preserves list order and writes `00000000.txt`,
+`00000001.txt`, and so on. `batch_download_steps` reads all `*.txt` files in
+its input directory and uses each file stem for the STEP filename. Conversion,
+compilation, and rendering failures are isolated per model; the batch continues.
 
 The credentials file can use the same multi-account format as the rendering CLI:
 

@@ -5,7 +5,7 @@ import re
 import shutil
 import tempfile
 import threading
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -17,6 +17,7 @@ from src.rendering.session import render_files_with_api_session
 
 Credentials = str | Path | Mapping[str, str] | tuple[str, str]
 StepStatus = Literal['success', 'skipped', 'compile_error', 'render_error', 'failed']
+CadfsStatus = Literal['success', 'skipped', 'failed']
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,17 @@ class StepDownloadResult:
 
     name: str
     status: StepStatus
+    path: Path | None = None
+    error: str | None = None
+
+
+@dataclass(frozen=True)
+class CadfsConversionResult:
+    """Outcome for one URL passed to :func:`batch_onshape_links_to_cadfs`."""
+
+    name: str
+    url: str
+    status: CadfsStatus
     path: Path | None = None
     error: str | None = None
 
@@ -90,79 +102,86 @@ def onshape_link_to_cadfs(
     Unsupported CAD operations raise the same parser exceptions as
     :class:`src.fs_parser.parser.Parser`.
     """
-    client = None
+    requests_used = 0
+
+    def count_request() -> None:
+        nonlocal requests_used
+        requests_used += 1
+
     try:
-        ref = parse_onshape_part_url(onshape_url)
-        accounts = _load_accounts(credentials, ref.stack)
-        access_key, secret_key = accounts[0]
-        client = Client(
-            stack=ref.stack,
-            logging=False,
-            version=api_version,
-            creds={'access_key': access_key, 'secret_key': secret_key},
-        )
-        source_response = client.get_partstudio_featurescript(
-            ref.document_id,
-            ref.wvm,
-            ref.wvm_id,
-            ref.element_id,
-            configuration=ref.configuration,
-            link_document_id=ref.link_document_id,
-        )
-        sketch_response = client.get_sketch_information_wvm(
-            ref.document_id,
-            ref.wvm,
-            ref.wvm_id,
-            ref.element_id,
-            configuration=ref.configuration,
-            link_document_id=ref.link_document_id,
-        )
-        _raise_api_error(source_response, 'get FeatureScript representation')
-        _raise_api_error(sketch_response, 'get sketch information')
-
-        source = _extract_featurescript_source(source_response.json())
-        sketch_data = sketch_response.json()
-        if not isinstance(sketch_data, dict) or 'sketches' not in sketch_data:
-            raise ValueError('Onshape sketch response does not contain a sketches list')
-
-        with tempfile.TemporaryDirectory(prefix='cadfs_parse_') as temp_dir:
-            # Import lazily so URL/credential helpers and STEP rendering do not require
-            # the parser's numerical dependencies until conversion is requested.
-            from src.fs_parser.parser import Parser
-
-            temp_path = Path(temp_dir)
-            source_path = temp_path / 'partstudio.fs'
-            sketches_path = temp_path / 'sketches.json'
-            source_path.write_text(source, encoding='utf-8')
-            sketches_path.write_text(json.dumps(sketch_data), encoding='utf-8')
-            code, _operations = Parser(
-                str(source_path),
-                str(sketches_path),
-                preserve_identifiers=True,
-                preserve_operations=True,
-            ).process_text()
-        return code
+        return _convert_onshape_link(onshape_url, credentials, api_version, count_request)
     finally:
-        requests_used = client.requests_made if client is not None else 0
         print(f'onshape_link_to_cadfs used {requests_used} Onshape request(s)')
 
 
-def batch_download_steps(
-    cadfs_codes: Sequence[str] | Mapping[str, str],
+def batch_onshape_links_to_cadfs(
+    json_path: str | Path,
     output_dir: str | Path,
     credentials: Credentials = 'creds/onshape_accounts.json',
     *,
-    names: Sequence[str] | None = None,
+    api_version: int = 12,
+    overwrite: bool = False,
+) -> list[CadfsConversionResult]:
+    """Convert every Onshape URL in a JSON list into an individual CADFS file.
+
+    The JSON list may contain URL strings directly or objects whose ``url``
+    value is the URL. Files are named ``00000000.txt``, ``00000001.txt``, ...
+    in the same order as the JSON items. Existing files are skipped unless
+    ``overwrite`` is true. A failed item does not abort the rest of the batch.
+    """
+    requests_used = 0
+
+    def count_request() -> None:
+        nonlocal requests_used
+        requests_used += 1
+
+    try:
+        if api_version < 1:
+            raise ValueError('api_version must be positive')
+        urls = _load_onshape_urls(json_path)
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        results = []
+        for index, url in enumerate(urls):
+            name = f'{index:08}'
+            destination = output_path / f'{name}.txt'
+            if destination.exists() and not overwrite:
+                results.append(CadfsConversionResult(name=name, url=url, status='skipped', path=destination))
+                continue
+            if overwrite:
+                destination.unlink(missing_ok=True)
+            try:
+                code = _convert_onshape_link(url, credentials, api_version, count_request)
+                destination.write_text(code, encoding='utf-8')
+                results.append(CadfsConversionResult(name=name, url=url, status='success', path=destination))
+            except Exception as exc:
+                results.append(
+                    CadfsConversionResult(
+                        name=name,
+                        url=url,
+                        status='failed',
+                        error=f'{type(exc).__name__}: {exc}',
+                    )
+                )
+        return results
+    finally:
+        print(f'batch_onshape_links_to_cadfs used {requests_used} Onshape request(s)')
+
+
+def batch_download_steps(
+    cadfs_dir: str | Path,
+    output_dir: str | Path,
+    credentials: Credentials = 'creds/onshape_accounts.json',
+    *,
     workers: int = 4,
     api_version: int = 12,
     overwrite: bool = False,
 ) -> list[StepDownloadResult]:
     """Render CADFS programs in Onshape and download their STEP models.
 
-    ``cadfs_codes`` can be a sequence, in which case files are named
-    ``00000000.step``, ``00000001.step``, ...; or a ``name -> code`` mapping.
-    Explicit ``names`` may be supplied with a sequence. One temporary Onshape
-    document is used per worker and is deleted when that worker finishes.
+    ``cadfs_dir`` must be a directory containing CADFS ``*.txt`` files. Each
+    output STEP file uses the source file's stem. One temporary Onshape document
+    is used per worker and is deleted when that worker finishes.
 
     The returned list has one result per input and preserves input order. A bad
     program does not abort the remaining batch; its status is ``compile_error``,
@@ -170,18 +189,16 @@ def batch_download_steps(
     """
     requests_used = 0
     try:
-        items = _normalize_codes(cadfs_codes, names)
         if workers < 1:
             raise ValueError('workers must be at least 1')
         if api_version < 1:
             raise ValueError('api_version must be positive')
+        items = _load_cadfs_directory(cadfs_dir)
         if not items:
             return []
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        accounts = _load_accounts(credentials)
-
         results: list[StepDownloadResult | None] = [None] * len(items)
         pending: list[tuple[int, str, str]] = []
         for index, (name, code) in enumerate(items):
@@ -199,10 +216,71 @@ def batch_download_steps(
                 pending.append((index, name, code))
 
         if pending:
+            accounts = _load_accounts(credentials)
             requests_used = _render_pending_codes(pending, output_path, accounts, results, workers, api_version)
         return [result for result in results if result is not None]
     finally:
         print(f'batch_download_steps used {requests_used} Onshape request(s)')
+
+
+def _convert_onshape_link(
+    onshape_url: str,
+    credentials: Credentials,
+    api_version: int,
+    request_hook: Callable[[], None] | None = None,
+) -> str:
+    """Shared conversion implementation without user-facing request-count output."""
+    ref = parse_onshape_part_url(onshape_url)
+    accounts = _load_accounts(credentials, ref.stack)
+    access_key, secret_key = accounts[0]
+    client = Client(
+        stack=ref.stack,
+        logging=False,
+        version=api_version,
+        creds={'access_key': access_key, 'secret_key': secret_key},
+        request_hook=request_hook,
+    )
+    source_response = client.get_partstudio_featurescript(
+        ref.document_id,
+        ref.wvm,
+        ref.wvm_id,
+        ref.element_id,
+        configuration=ref.configuration,
+        link_document_id=ref.link_document_id,
+    )
+    sketch_response = client.get_sketch_information_wvm(
+        ref.document_id,
+        ref.wvm,
+        ref.wvm_id,
+        ref.element_id,
+        configuration=ref.configuration,
+        link_document_id=ref.link_document_id,
+    )
+    _raise_api_error(source_response, 'get FeatureScript representation')
+    _raise_api_error(sketch_response, 'get sketch information')
+
+    source = _extract_featurescript_source(source_response.json())
+    sketch_data = sketch_response.json()
+    if not isinstance(sketch_data, dict) or 'sketches' not in sketch_data:
+        raise ValueError('Onshape sketch response does not contain a sketches list')
+
+    with tempfile.TemporaryDirectory(prefix='cadfs_parse_') as temp_dir:
+        # Import lazily so URL/credential helpers and STEP rendering do not require
+        # the parser's numerical dependencies until conversion is requested.
+        from src.fs_parser.parser import Parser
+
+        temp_path = Path(temp_dir)
+        source_path = temp_path / 'partstudio.fs'
+        sketches_path = temp_path / 'sketches.json'
+        source_path.write_text(source, encoding='utf-8')
+        sketches_path.write_text(json.dumps(sketch_data), encoding='utf-8')
+        code, _operations = Parser(
+            str(source_path),
+            str(sketches_path),
+            preserve_identifiers=True,
+            preserve_operations=True,
+        ).process_text()
+    return code
 
 
 def _render_pending_codes(
@@ -344,29 +422,47 @@ def _split_evenly(items: list[Path], groups: int) -> list[list[Path]]:
     return result
 
 
-def _normalize_codes(
-    cadfs_codes: Sequence[str] | Mapping[str, str], names: Sequence[str] | None
-) -> list[tuple[str, str]]:
-    if isinstance(cadfs_codes, Mapping):
-        if names is not None:
-            raise ValueError('names cannot be used when cadfs_codes is a mapping')
-        raw_items = list(cadfs_codes.items())
-    else:
-        if isinstance(cadfs_codes, (str, bytes)):
-            raise TypeError('cadfs_codes must be a sequence of programs, not a single string')
-        codes = list(cadfs_codes)
-        if names is not None and len(names) != len(codes):
-            raise ValueError('names and cadfs_codes must have the same length')
-        raw_names = list(names) if names is not None else [f'{index:08}' for index in range(len(codes))]
-        raw_items = list(zip(raw_names, codes))
+def _load_cadfs_directory(cadfs_dir: str | Path) -> list[tuple[str, str]]:
+    input_path = Path(cadfs_dir)
+    if not input_path.exists():
+        raise FileNotFoundError(f'CADFS directory does not exist: {input_path}')
+    if not input_path.is_dir():
+        raise NotADirectoryError(f'CADFS input must be a directory: {input_path}')
 
-    items = [(_safe_name(str(name)), code) for name, code in raw_items]
-    if any(not isinstance(code, str) or not code.strip() for _name, code in items):
-        raise ValueError('every CADFS program must be a non-empty string')
-    normalized_names = [name for name, _code in items]
-    if len(normalized_names) != len(set(normalized_names)):
-        raise ValueError('output names must be unique after sanitization')
+    items = []
+    for source_path in sorted(input_path.glob('*.txt')):
+        code = source_path.read_text(encoding='utf-8')
+        if not code.strip():
+            raise ValueError(f'CADFS file is empty: {source_path}')
+        items.append((_safe_name(source_path.stem), code))
     return items
+
+
+def _load_onshape_urls(json_path: str | Path) -> list[str]:
+    source_path = Path(json_path)
+    if not source_path.exists():
+        raise FileNotFoundError(f'Onshape URL JSON does not exist: {source_path}')
+    if not source_path.is_file():
+        raise ValueError(f'Onshape URL JSON must be a file: {source_path}')
+
+    payload = json.loads(source_path.read_text(encoding='utf-8'))
+    if isinstance(payload, list):
+        items = payload
+    elif isinstance(payload, dict):
+        list_values = [value for value in payload.values() if isinstance(value, list)]
+        if len(list_values) != 1:
+            raise ValueError('JSON object must contain exactly one list of Onshape links')
+        items = list_values[0]
+    else:
+        raise ValueError('Onshape URL JSON must be a list or contain exactly one list')
+
+    urls = []
+    for index, item in enumerate(items):
+        url = item if isinstance(item, str) else item.get('url') if isinstance(item, dict) else None
+        if not isinstance(url, str) or not url.strip():
+            raise ValueError(f'JSON item {index} must be a URL string or an object with a non-empty url key')
+        urls.append(url.strip())
+    return urls
 
 
 def _safe_name(name: str) -> str:
@@ -454,9 +550,11 @@ def _first_query_value(query: dict[str, list[str]], key: str) -> str | None:
 
 
 __all__ = [
+    'CadfsConversionResult',
     'OnshapePartRef',
     'StepDownloadResult',
     'batch_download_steps',
+    'batch_onshape_links_to_cadfs',
     'onshape_link_to_cadfs',
     'parse_onshape_part_url',
 ]

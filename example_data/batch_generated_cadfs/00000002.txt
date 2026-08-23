@@ -1,0 +1,91 @@
+FeatureScript 3029;
+import(path : "onshape/std/geometry.fs", version : "3029.0");
+import(path : "onshape/std/common.fs", version : "3029.0");
+const mm = millimeter;
+const VERTEX = EntityType.VERTEX;
+const EDGE = EntityType.EDGE;
+const FACE = EntityType.FACE;
+const BODY = EntityType.BODY;
+function v(x, y){return vector(x, y);}
+function OD(order){return orderDisambiguation(order);}
+function OSD(set){return originalSetDisambiguation(set);}
+function TD(topology){return topologyDisambiguation(topology);}
+function TDD(query){return trueDependencyDisambiguation(query);}
+function sQuery(a, b, c) {return sketchEntityQuery(a, b, c);}
+
+annotation { "Feature Type Name" : "Feature", "Feature Type Description" : "" }
+export const myFeature = defineFeature(function(context is Context, id is Id, definition is map)
+    precondition{}
+    {
+        {
+            var Q0;
+            Q0=qCreatedBy(makeId("Top.planeOp"), EntityType.FACE);
+            var sketch = newSketch(context, id + "FNymRFcurfDDKIx_0", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skCircle(sketch, "XrRUmnDC5lJ0", {"center": v(0, 0) * mm, "radius": 15 * mm});
+            skCircle(sketch, "x7CMOOYFjtq5", {"center": v(0, 0) * mm, "radius": 8 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0 = qSketchRegion(id + "FNymRFcurfDDKIx_0", true);
+            extrude(context, id + "F2ktF0Ft4OX51nf_0", {"entities" : qUnion([Q0]), "domain" : OperationDomain.MODEL, "flatOperationType" : FlatOperationType.REMOVE, "thickness1" : 5 * mm, "thickness2" : 0 * mm, "thickness" : 5 * mm, "oppositeDirection" : true, "depth" : 10 * mm, "offsetDistance" : 25 * mm, "startOffsetBound" : StartOffsetType.BLIND, "startOffsetDistance" : 25 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCompressed(1.0,"%B5$QueryM6S12$disambiguationDataA1M2S12$disambiguationTypeS13$ORIGINAL_DEPENDENCYS9$originalsA2C0M5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FNymRFcurfDDKIx_0wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$XrRUmnDC5lJ0C0M5R4R5R6R7R8RaRbRcRdSc$x7CMOOYFjtq5R4C6S4$FACER6R7S7$isStartFR8CbA1S11.9$F2ktF0Ft4OX51nf_0opExtrudeRbS8$CAP_FACE",id);
+            var sketch = newSketch(context, id + "FIKXdklhEpZehoR_1", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skCircle(sketch, "y2JAj4IAN2fa", {"center": v(0, 0) * mm, "radius": 12.5 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0 = qSketchRegion(id + "FIKXdklhEpZehoR_1", true);
+            extrude(context, id + "FXzRxG0nuZplcwC_1", {"entities" : qUnion([Q0]), "domain" : OperationDomain.MODEL, "operationType" : NewBodyOperationType.ADD, "flatOperationType" : FlatOperationType.REMOVE, "thickness1" : 5 * mm, "thickness2" : 0 * mm, "thickness" : 5 * mm, "depth" : 20 * mm, "offsetDistance" : 25 * mm, "startOffsetBound" : StartOffsetType.BLIND, "startOffsetDistance" : 25 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCompressed(1.0,"%B5$QueryM6S12$disambiguationDataA1M2S12$disambiguationTypeS13$ORIGINAL_DEPENDENCYS9$originalsA1C0M5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FIKXdklhEpZehoR_1wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$y2JAj4IAN2faR4C6S4$FACER6R7S7$isStartFR8CbA1S11.9$FXzRxG0nuZplcwC_1opExtrudeRbS8$CAP_FACE",id);
+            var sketch = newSketch(context, id + "FgIAWlkc1Xy3xnk_1", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skCircle(sketch, "ckCR7ZhScbZ5", {"center": v(0, 0) * mm, "radius": 8 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0 = qSketchRegion(id + "FgIAWlkc1Xy3xnk_1", true);
+            extrude(context, id + "FADiaZzqrDPJKFn_1", {"entities" : qUnion([Q0]), "domain" : OperationDomain.MODEL, "operationType" : NewBodyOperationType.REMOVE, "flatOperationType" : FlatOperationType.REMOVE, "thickness1" : 5 * mm, "thickness2" : 0 * mm, "thickness" : 5 * mm, "oppositeDirection" : true, "depth" : 25 * mm, "offsetDistance" : 25 * mm, "startOffsetBound" : StartOffsetType.BLIND, "startOffsetDistance" : 25 * mm});
+        }
+        {
+            var Q0;
+            Q0=qCreatedBy(makeId("Front.planeOp"), EntityType.FACE);
+            var sketch = newSketch(context, id + "FNeSU8lb9mURJeH_1", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skPoint(sketch, "8KRukGASmYvm", {"position": v(30, 0) * mm});
+            skArc(sketch, "DRnoMcMPIUiL", {"start": v(0, 0) * mm, "mid": v(8.786796564403575, 21.213203435596423) * mm, "end": v(30, 30) * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0=qCompressed(1.0,"%B5$QueryM6S12$disambiguationDataA1M2S12$disambiguationTypeS13$ORIGINAL_DEPENDENCYS9$originalsA2C0M5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FNymRFcurfDDKIx_0wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$XrRUmnDC5lJ0C0M5R4R5R6R7R8RaRbRcRdSc$x7CMOOYFjtq5R4C6S4$FACER6R7S7$isStartTR8CbA1S11.9$F2ktF0Ft4OX51nf_0opExtrudeRbS8$CAP_FACE",id);
+            var sketch = newSketch(context, id + "FReraEdBGiSAd17_1", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skCircle(sketch, "IZsabrOHp2wp", {"center": v(0, 0) * mm, "radius": 14 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0=qCompressed(1.0,"%B5$QueryM5S12$disambiguationDataA1M2S12$disambiguationTypeS8$TOPOLOGYS8$entitiesA2A2C0M5Sb$derivedFromC0M5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FReraEdBGiSAd17_1wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$IZsabrOHp2wpR5R6R7R8R9CcA1S-d.7$imprintRcS7$IMPRINTD1A2C0M5R4C0M6R0A1M2R1S13$ORIGINAL_DEPENDENCYS9$originalsA1C0M5R5R6R7R8R9CcA1S11.-e$FNymRFcurfDDKIx_0RcRdReSc$x7CMOOYFjtq5R5R6R7R8S7$isStartTR9CcA1S11.9$F2ktF0Ft4OX51nf_0opExtrudeRcS8$CAP_EDGER5R6R7R8R9R12RcR13D-1R5C7S4$FACER7R8R9R12RcR13",id);
+            var Q1;
+            Q1=qCompressed(1.0,"%B5$QueryM5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FNeSU8lb9mURJeH_1wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$DRnoMcMPIUiL",id);
+            sweep(context, id + "Fbn9SHh0K5zJMqH_1", {"operationType" : NewBodyOperationType.ADD, "profiles" : qUnion([Q0]), "thickness1" : 5 * mm, "thickness2" : 0 * mm, "thickness" : 5 * mm, "path" : qUnion([Q1]), "twistType" : SweepTwistType.TURNS, "turns" : 1, "angle" : 0 * degree, "pitch" : 25 * mm, "scaleFactor" : 1, "trimEnds" : true});
+        }
+        {
+            var Q0;
+            Q0=qCompressed(1.0,"%B5$QueryM6S12$disambiguationDataA1M2S12$disambiguationTypeS13$ORIGINAL_DEPENDENCYS9$originalsA3C0M5Sa$entityTypeBa$EntityTypeS4$EDGESb$historyTypeS8$CREATIONSb$operationIdB2$IdA1S11.6$FNymRFcurfDDKIx_0wireOpS9$queryTypeSd$SKETCH_ENTITYSe$sketchEntityIdSc$x7CMOOYFjtq5C0M5R4C6S6$VERTEXR6R7R8CbA1S11.-d$FNeSU8lb9mURJeH_1RbRcRdSc.3$DRnoMcMPIUiLendC0M5R4R5R6R7R8CbA1S11.-d$FReraEdBGiSAd17_1RbRcRdSc$IZsabrOHp2wpR4C6S4$FACER6R7S7$isStartFR8CbA1S11.7$Fbn9SHh0K5zJMqH_1opSweepRbS8$CAP_FACE",id);
+            var sketch = newSketch(context, id + "FE94eFHZw0DGDHf_1", {"sketchPlane" : qUnion([Q0]), "disableImprinting" : false});
+            skCircle(sketch, "7L3GOCRrWgQL", {"center": v(0, 30) * mm, "radius": 12.5 * mm});
+            skSolve(sketch);
+        }
+        {
+            var Q0;
+            Q0 = qSketchRegion(id + "FE94eFHZw0DGDHf_1", true);
+            extrude(context, id + "FRhPqr8xpOlUUTg_1", {"entities" : qUnion([Q0]), "domain" : OperationDomain.MODEL, "operationType" : NewBodyOperationType.ADD, "flatOperationType" : FlatOperationType.REMOVE, "thickness1" : 5 * mm, "thickness2" : 0 * mm, "thickness" : 5 * mm, "depth" : 10 * mm, "offsetDistance" : 25 * mm, "startOffsetBound" : StartOffsetType.BLIND, "startOffsetDistance" : 25 * mm});
+        }
+    });
