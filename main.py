@@ -131,4 +131,5 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    batch_onshape_links_to_cadfs()
