@@ -5,7 +5,6 @@
 .env copy*
 
 # Onshape API credentials
-creds/*.json
 !creds/.gitkeep
 
 # Dataset and artifacts (download via README)
